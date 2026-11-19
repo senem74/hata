@@ -50,8 +50,19 @@ html,body{margin:0;height:100%;background:#faf7f0;font-family:system-ui,-apple-s
   } };
   Object.defineProperty(G.script, 'run', { get: runner });
 
+  function hafiza() {
+    var d = {};
+    return { getItem: function (k) { return k in d ? d[k] : null; }, setItem: function (k, v) { d[k] = String(v); },
+      removeItem: function (k) { delete d[k]; }, clear: function () { d = {}; }, key: function (i) { return Object.keys(d)[i] || null; },
+      get length() { return Object.keys(d).length; } };
+  }
+
   function goster(html) {
-    if (!demo) {
+    if (demo) {
+      // Demo gerçek kayıtlara karışmasın: demo verileri yalnızca bu sekmenin hafızasında tutulur.
+      try { Object.defineProperty(window, 'localStorage', { value: hafiza(), configurable: true }); } catch (x) {}
+    } else {
+      try { if (localStorage.getItem('nh.demoTemizlendi') !== '1') { ['giris', 'cache', 'koc'].forEach(function (k) { localStorage.removeItem('nh.' + k); }); localStorage.setItem('nh.demoTemizlendi', '1'); } } catch (x) {}
       window.google = G;
       html = html.replace(/<base target="_top">/i, '');
     }
